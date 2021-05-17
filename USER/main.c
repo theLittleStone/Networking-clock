@@ -14,6 +14,7 @@
 #include "MP3.h"
 #include "ESP01.h"
 #include "display.h"
+#include "string.h"
 
 unsigned char  Data[]={0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f};
 unsigned char  DataDp[]={0xbf,0x86,0xdb,0xcf,0xe6,0xed,0xfd,0x87,0xff,0xef};
@@ -44,16 +45,17 @@ int main()
 	{ 
 		showAll();
 		delay_ms(100);
-		if(KEY0 == 0){
+		
+		if(KEY1 == 0){                     //按下KEY1复位时钟
 			delay_ms(10);
-			if(KEY0 == 0)
+			if(KEY1 == 0)
 				RTC_Set(2021, 1, 1, 0, 0, 0);
 		}
-		while (KEY1 == 0){
+		/*while (KEY_UP == 1){
 			showMessage(FailToGetTime);
 			delay_ms(10);	
 		}
-		clearMessage(FailToGetTime);
+		clearMessage(FailToGetTime);*/
 		
 		
 		//读取时间
@@ -68,10 +70,16 @@ int main()
 		}*/
 		
 		
-		//网络校时并读时间
-		if(KEY0 == 0)
+	
+		if(KEY0 == 0)                //按下KEY0进行网络校时
 		{
-			LED0_ON;
+			delay_ms(10);
+			if(KEY0 == 0)
+			{
+				/* code */
+			
+			
+			//LED0_ON;
 			delay_ms(100);
 			showMessage(GettingTime);
 			//Uart_SendCMD(0x12,0,0x0f);  //提醒正在校时
@@ -83,31 +91,34 @@ int main()
 				USART1_SendByte(USART_RX_BUF2[i]);  //调试
 			}*/
 			
-			if(USART_RX_BUF2[64]==0x32)
-			{
-				ESP01_Settime();
+				if(USART_RX_BUF2[64]==0x32)
+				{
+					ESP01_Settime();
 
-				//Uart_SendCMD(0x12,0,0x10);  //校时成功
-				clearMessage(GettingTime);
-				showMessage(GetTimeSuccessfully);
-				delay_ms(100);
-				//while(BUSY!=1);
-				delay_ms(3000);
-				clearMessage(GetTimeSuccessfully);
-				//Readtime(calendar.w_month,calendar.w_date,calendar.hour,calendar.min,calendar.sec);  //读时间
+					//Uart_SendCMD(0x12,0,0x10);  //校时成功
+					clearMessage(GettingTime);
+					showMessage(GetTimeSuccessfully);
+					delay_ms(100);
+					//while(BUSY!=1);
+					delay_ms(3000);
+					clearMessage(GetTimeSuccessfully);
+					//Readtime(calendar.w_month,calendar.w_date,calendar.hour,calendar.min,calendar.sec);  //读时间
+					memset(USART_RX_BUF2,'\0',sizeof(USART_RX_BUF2));// 清空字符串
+				}
+				else 
+				{	
+					//Uart_SendCMD(0x12,0,0x11); //提醒校时失败，检查网络环境
+					clearMessage(GettingTime);
+					showMessage(FailToGetTime);
+					delay_ms(3000);
+					//while(BUSY!=1);		
+					clearMessage(FailToGetTime);	
+					memset(USART_RX_BUF2,'\0',sizeof(USART_RX_BUF2));// 清空字符串	
+				}			
 			}
-			else 
-			{	
-				//Uart_SendCMD(0x12,0,0x11); //提醒校时失败，检查网络环境
-				clearMessage(GettingTime);
-				showMessage(FailToGetTime);
-				delay_ms(3000);
-				//while(BUSY!=1);		
-				clearMessage(FailToGetTime);		
-			}			
 			while(KEY0 == 0);
 			delay_ms(10);
-			LED0_OFF;
+			//LED0_OFF;
 		}
 		
 		//未开放功能
