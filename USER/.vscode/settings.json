@@ -30,6 +30,7 @@
         "key.h": "c",
         "stm32f10x.h": "c",
         "esp01.h": "c",
-        "rtc.h": "c"
+        "rtc.h": "c",
+        "led.h": "c"
     }
 }

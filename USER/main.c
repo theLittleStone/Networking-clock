@@ -2,16 +2,14 @@
 //start up中SystemInit记得去掉注释
 #include "TM1637.h"
 #include "delay.h"
-#include "led.h"
 #include "rtc.h"
 #include "key.h"
 #include "lcd.h"
 
 #include "usart.h"
-#include "usart3.h"
+//#include "usart3.h"
 #include "usart2.h"
 
-#include "MP3.h"
 #include "ESP01.h"
 #include "display.h"
 #include "string.h"
@@ -30,17 +28,15 @@ extern unsigned char rec_dat[];
 int main()
 {
 	
-	uart_init(115200);  //调试接口
+	uart_init(115200);  //调试串口
 	delay_init();
 	RTC_Init();
 	//TM_Init();
-	led_Init();
 	key_Init();
 	USART2_Init(); //初始化网络串口
-	//MP3_Init();  //串口在其内初始化
-	//Uart_SendCMD(0x06,0,0x18);  //音量
 	LCD_Init();
-	RTC_Set(2021, 1, 1, 0, 0, 0);
+
+	//RTC_Set(2021, 1, 1, 0, 0, 0);
 	while (1)
 	{ 
 		showAll();
@@ -58,26 +54,12 @@ int main()
 		clearMessage(FailToGetTime);*/
 		
 		
-		//读取时间
-		/*if(KEY2==0)
-		{
-			LED0_ON;
-			delay_ms(100);
-			Readtime(calendar.w_month,calendar.w_date,calendar.hour,calendar.min,calendar.sec);   //读出时间
-			while(KEY2==0);
-			delay_ms(10);
-			LED0_OFF;
-		}*/
-		
-		
 	
 		if(KEY0 == 0)                //按下KEY0进行网络校时
 		{
 			delay_ms(10);
 			if(KEY0 == 0)
 			{
-				/* code */
-			
 			
 			//LED0_ON;
 			delay_ms(100);

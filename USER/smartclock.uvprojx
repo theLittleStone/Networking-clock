@@ -467,16 +467,6 @@
               <FilePath>..\HARDWARE\key.c</FilePath>
             </File>
             <File>
-              <FileName>MP3.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\HARDWARE\MP3.c</FilePath>
-            </File>
-            <File>
-              <FileName>usart3.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\HARDWARE\usart3.c</FilePath>
-            </File>
-            <File>
               <FileName>ESP01.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\HARDWARE\ESP01.c</FilePath>
