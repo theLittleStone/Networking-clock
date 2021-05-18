@@ -31,6 +31,8 @@
         "stm32f10x.h": "c",
         "esp01.h": "c",
         "rtc.h": "c",
-        "led.h": "c"
+        "led.h": "c",
+        "sys.h": "c",
+        "delay.h": "c"
     }
 }

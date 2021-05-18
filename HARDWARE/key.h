@@ -14,8 +14,8 @@
 #define KEY2_PORT   GPIOE
 #define KEY2_PIN 	GPIO_Pin_2
 
-#define KEY_UP_CLK  RCC_APB2Periph_GPIOE
-#define KEY_UP_PORT GPIOE
+#define KEY_UP_CLK  RCC_APB2Periph_GPIOA
+#define KEY_UP_PORT GPIOA
 #define KEY_UP_PIN  GPIO_Pin_0
 
 #define KEY0  GPIO_ReadInputDataBit(GPIOE,GPIO_Pin_4)//读取按键0, 0为按下

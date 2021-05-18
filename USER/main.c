@@ -31,13 +31,15 @@ int main()
 	
 	uart_init(115200);  //调试串口
 	delay_init();
-	RTC_Init();
 	//TM_Init();
 	key_Init();
 	USART2_Init(); //初始化网络串口
 	LCD_Init();
 
-	//RTC_Set(2021, 1, 1, 0, 0, 0);
+	RTC_Set(2021, 1, 1, 0, 0, 0);
+	RTC_Alarm_Set(2021,6,1,6,0,0);
+	RTC_Init();
+
 	while (1)
 	{ 
 		showAll();
@@ -47,13 +49,17 @@ int main()
 			delay_ms(10);
 			if(KEY1 == 0)
 				RTC_Set(2021, 1, 1, 0, 0, 0);
+			while(KEY1 == 0);
 		}
-		/*while (KEY_UP == 1){
-			showMessage(FailToGetTime);
-			delay_ms(10);	
-		}
-		clearMessage(FailToGetTime);*/
 		
+		if(KEY_UP == 1){
+			delay_ms(10);
+			if(KEY_UP == 1){
+				//showAlarm(NextAlarm);
+				showTest("111");
+			}
+			while(KEY_UP == 1);
+		}
 		
 	
 		if(KEY0 == 0)                //按下KEY0进行网络校时

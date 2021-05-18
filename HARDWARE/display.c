@@ -67,5 +67,10 @@ void clearMessage(enum Message mes){
 }
 
 void showAlarm(enum Alarm al){
-
+    char str[20];
+    switch(al){
+        case NextAlarm:
+            sprintf(str, "Next alarm: %02d : %02d : %02d", calendar.hour, calendar.min, calendar.sec);
+            LCD_ShowString(80,240,240,12,12,str);
+    }
 }
