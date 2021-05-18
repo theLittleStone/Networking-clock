@@ -4,7 +4,7 @@
 void key_Init(void)
 {
 	GPIO_InitTypeDef GPIO_InitStructure;
-	RCC_APB2PeriphClockCmd(KEY0_CLK,ENABLE);
+	RCC_APB2PeriphClockCmd(KEY0_CLK|KEY_UP_CLK,ENABLE);
 	
 	GPIO_InitStructure.GPIO_Pin  = KEY0_PIN;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
@@ -15,6 +15,6 @@ void key_Init(void)
  	GPIO_Init(KEY1_PORT, &GPIO_InitStructure);//初始化KEY1
 	
 	GPIO_InitStructure.GPIO_Pin  = KEY_UP_PIN;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;
  	GPIO_Init(KEY_UP_PORT, &GPIO_InitStructure);//初始化KEY_UP
 }
