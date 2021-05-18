@@ -1,6 +1,8 @@
 
 #include "display.h"
 
+extern _calendar_obj calendar; //声明外部变量
+
 void showTest(char *str){
     LCD_ShowString(80, 220,240,12,12,str);
 }
@@ -62,4 +64,8 @@ void clearMessage(enum Message mes){
         case FailToGetTime:
         LCD_ShowString(70,180,240,12,12,"                "); break;
     }
+}
+
+void showAlarm(enum Alarm al){
+
 }

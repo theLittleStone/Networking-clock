@@ -486,6 +486,11 @@
               <FileType>1</FileType>
               <FilePath>..\HARDWARE\display.c</FilePath>
             </File>
+            <File>
+              <FileName>beep.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\HARDWARE\beep.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

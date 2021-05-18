@@ -2,12 +2,18 @@
 #include "delay.h"
 #include "usart.h"
 #include "rtc.h" 
+#include "beep.h"
 //Mini STM32开发板
 //RTC实时时钟 驱动代码			 
 //正点原子@ALIENTEK
 //2010/6/6
+
+#define RING_TIME 20 //闹钟响铃时间, 单位为秒
 	   
 _calendar_obj calendar;//时钟结构体 
+
+uint8_t alarmFlag = 0;//闹钟标志位
+uint8_t alarmCount = 0;//闹钟计时位
  
 static void RTC_NVIC_Config(void)
 {	
@@ -73,18 +79,41 @@ u8 RTC_Init(void)
 
 void RTC_IRQHandler(void)
 {		 
+
 	if (RTC_GetITStatus(RTC_IT_SEC) != RESET)//秒钟中断
 	{							
-		RTC_Get();//更新时间   
+		RTC_Get();//更新时间
+
+		if(alarmFlag == 1){		//到了响铃时间
+			if(alarmCount == 0){ //打开蜂鸣器
+				RTC_Next_Alarm_Set(calendar.w_year,calendar.w_month,calendar.w_date,calendar.hour,calendar.min,calendar.sec);
+				//设置明天的闹钟
+				alarmCount ++;
+				BEEP_ON;
+			}
+
+			else if (alarmCount >= RING_TIME ){ //说明蜂鸣器已经响了xx秒,应该关闭蜂鸣器,并重置闹钟
+				alarmFlag = 0;
+				alarmCount = 0;
+				BEEP_OFF;
+			}
+
+			else{					//没到xx秒,继续响
+				alarmCount ++;
+			}
+			
+		}
+		   
  	}
 	if(RTC_GetITStatus(RTC_IT_ALR)!= RESET)//闹钟中断
 	{
 		RTC_ClearITPendingBit(RTC_IT_ALR);		//清闹钟中断	  	
 	  	RTC_Get();				//更新时间   
-  		printf("Alarm Time:%d-%d-%d %d:%d:%d\n",calendar.w_year,calendar.w_month,calendar.w_date,calendar.hour,calendar.min,calendar.sec);//输出闹铃时间	
+		alarmFlag = 1;          //闹钟标志位置1
+  		//printf("Alarm Time:%d-%d-%d %d:%d:%d\n",calendar.w_year,calendar.w_month,calendar.w_date,calendar.hour,calendar.min,calendar.sec);//输出闹铃时间	
 		
-  	} 				  								 
-	RTC_ClearITPendingBit(RTC_IT_SEC|RTC_IT_OW);		//清闹钟中断
+  	} 				
+	RTC_ClearITPendingBit(RTC_IT_SEC|RTC_IT_OW);		//清闹钟中断    								 
 	RTC_WaitForLastTask();	  	    						 	   	 
 }
 
@@ -251,6 +280,42 @@ u8 RTC_Get_Week(u16 year,u8 month,u8 day)
 	if (yearL%4==0&&month<3)temp2--;
 	return(temp2%7);
 }			  
+
+
+
+u8 RTC_Next_Alarm_Set(u16 syear,u8 smon,u8 sday,u8 hour,u8 min,u8 sec)
+{
+	u16 t;
+	u32 seccount=0;
+	if(syear<1970||syear>2099)return 1;	   
+	for(t=1970;t<syear;t++)	//把所有年份的秒钟相加
+	{
+		if(Is_Leap_Year(t))seccount+=31622400;//闰年的秒钟数
+		else seccount+=31536000;			  //平年的秒钟数
+	}
+	smon-=1;
+	for(t=0;t<smon;t++)	   //把前面月份的秒钟数相加
+	{
+		seccount+=(u32)mon_table[t]*86400;//月份秒钟数相加
+		if(Is_Leap_Year(syear)&&t==1)seccount+=86400;//闰年2月份增加一天的秒钟数	   
+	}
+	seccount+=(u32)(sday-1)*86400;//把前面日期的秒钟数相加 
+	seccount+=(u32)hour*3600;//小时秒钟数
+    seccount+=(u32)min*60;	 //分钟秒钟数
+	seccount+=sec;//最后的秒钟加上去 	
+	seccount+=24*60*60; //添加一天的秒数, 把闹钟设置成明天的同一时刻
+
+	//设置时钟
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE);	//使能PWR和BKP外设时钟   
+	PWR_BackupAccessCmd(ENABLE);	//使能后备寄存器访问  
+	//上面三步是必须的!
+	
+	RTC_SetAlarm(seccount);
+ 
+	RTC_WaitForLastTask();	//等待最近一次对RTC寄存器的写操作完成  	
+	
+	return 0;	    
+}
 
 
 

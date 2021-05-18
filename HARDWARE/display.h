@@ -10,6 +10,10 @@ enum Message{
     GetTimeSuccessfully = 1,
     FailToGetTime = 2
 };
+enum Alarm{
+    Beeping = 0,
+    NextAlarm = 1
+};
 
 void showTime(void);
 void showDate(void);
@@ -19,4 +23,5 @@ void showMessage(enum Message mes);
 void clearMessage(enum Message mes);
 void showTest(char *str);
 void clearTest(void);
+void showAlarm(enum Alarm al);
 #endif
