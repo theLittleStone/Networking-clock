@@ -29,7 +29,8 @@ u8 RTC_Alarm_Set(u16 syear,u8 smon,u8 sday,u8 hour,u8 min,u8 sec);//设置闹钟
 u8 RTC_Next_Alarm_Set(u16 syear,u8 smon,u8 sday,u8 hour,u8 min,u8 sec);//设置给定时间后一天的闹钟
 u8 RTC_Get(void);         //更新时间   
 u8 RTC_Get_Week(u16 year,u8 month,u8 day);
-u8 RTC_Set(u16 syear,u8 smon,u8 sday,u8 hour,u8 min,u8 sec);//设置时间			 
+u8 RTC_Set(u16 syear,u8 smon,u8 sday,u8 hour,u8 min,u8 sec);//设置时间		
+void RTC_Alarm_Get(u32 timecount);	 
 #endif
 
 

@@ -4,7 +4,7 @@
 extern _calendar_obj calendar; //声明外部变量
 
 void showTest(char *str){
-    LCD_ShowString(80, 220,240,12,12,str);
+    LCD_ShowString(60, 220,240,12,12,str);
 }
 void clearTest(void){
     LCD_ShowString(80,220,240,12,12,"                             ");
@@ -12,6 +12,7 @@ void clearTest(void){
 
 void showWeek(void){
     char *str;
+    LCD_ShowString(98,106,240,16,16,"         ");//先重置显示
     switch(calendar.week){
         case 0: str = "Sunday"; break;
         case 1: str = "Monday"; break;
@@ -66,11 +67,15 @@ void clearMessage(enum Message mes){
     }
 }
 
-void showAlarm(enum Alarm al){
-    char str[20];
-    switch(al){
-        case NextAlarm:
-            sprintf(str, "Next alarm: %02d : %02d : %02d", calendar.hour, calendar.min, calendar.sec);
-            LCD_ShowString(80,240,240,12,12,str);
-    }
+void showNextAlarm(uint8_t hour, uint8_t min, uint8_t sec){
+    char str[35];
+    sprintf(str, "Next alarm: %02d : %02d : %02d", hour, min, sec);
+    LCD_ShowString(60,240,240,12,12,str);
+}
+
+void showAlarming(void){
+    LCD_ShowString(80,260,240,12,12,"Alarming");
+}
+void clearAlarming(void){
+    LCD_ShowString(80,260,240,12,12,"        ");
 }

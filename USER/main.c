@@ -37,12 +37,13 @@ int main()
 	LCD_Init();
 
 	RTC_Set(2021, 1, 1, 0, 0, 0);
-	RTC_Alarm_Set(2021,6,1,6,0,0);
+	RTC_Alarm_Set(2021,1,1,12,26,10);
 	RTC_Init();
+	showAll();
 
 	while (1)
 	{ 
-		showAll();
+		
 		delay_ms(100);
 		
 		if(KEY1 == 0){                     //按下KEY1复位时钟
@@ -56,7 +57,7 @@ int main()
 			delay_ms(10);
 			if(KEY_UP == 1){
 				//showAlarm(NextAlarm);
-				showTest("111");
+				RTC_Set(2021,1,2,0,0,0);
 			}
 			while(KEY_UP == 1);
 		}

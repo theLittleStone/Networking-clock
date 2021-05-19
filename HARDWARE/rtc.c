@@ -3,17 +3,19 @@
 #include "usart.h"
 #include "rtc.h" 
 #include "beep.h"
+#include "display.h"
 //Mini STM32开发板
 //RTC实时时钟 驱动代码			 
 //正点原子@ALIENTEK
 //2010/6/6
 
-#define RING_TIME 20 //闹钟响铃时间, 单位为秒
+#define RING_TIME 10 //闹钟响铃时间, 单位为秒
 	   
 _calendar_obj calendar;//时钟结构体 
-
+_calendar_obj alarm_calendar;// 闹钟结构体
 uint8_t alarmFlag = 0;//闹钟标志位
 uint8_t alarmCount = 0;//闹钟计时位
+u32 alarm_seccount = 0; //闹钟计时秒数
  
 static void RTC_NVIC_Config(void)
 {	
@@ -51,7 +53,7 @@ u8 RTC_Init(void)
 		RCC_RTCCLKCmd(ENABLE);	//使能RTC时钟  
 		RTC_WaitForLastTask();	//等待最近一次对RTC寄存器的写操作完成
 		RTC_WaitForSynchro();		//等待RTC寄存器同步  
-		RTC_ITConfig(RTC_IT_SEC, ENABLE);		//使能RTC秒中断
+		RTC_ITConfig(RTC_IT_SEC|RTC_IT_ALR, ENABLE);		//使能RTC秒中断与闹钟中断
 		RTC_WaitForLastTask();	//等待最近一次对RTC寄存器的写操作完成
 		RTC_EnterConfigMode();/// 允许配置	
 		RTC_SetPrescaler(32767); //设置RTC预分频的值
@@ -64,7 +66,7 @@ u8 RTC_Init(void)
 	{
 
 		RTC_WaitForSynchro();	//等待最近一次对RTC寄存器的写操作完成
-		RTC_ITConfig(RTC_IT_SEC, ENABLE);	//使能RTC秒中断
+		RTC_ITConfig(RTC_IT_SEC|RTC_IT_ALR, ENABLE);	//使能RTC秒中断
 		RTC_WaitForLastTask();	//等待最近一次对RTC寄存器的写操作完成
 	}
 	RTC_NVIC_Config();//RCT中断分组设置		    				     
@@ -83,19 +85,31 @@ void RTC_IRQHandler(void)
 	if (RTC_GetITStatus(RTC_IT_SEC) != RESET)//秒钟中断
 	{							
 		RTC_Get();//更新时间
+		showAll();
+
+		if(RTC_GetITStatus(RTC_IT_ALR)!= RESET)//闹钟中断
+			{
+				RTC_ClearITPendingBit(RTC_IT_ALR);		//清闹钟中断	  	
+				RTC_Get();				//更新时间   
+				alarmFlag = 1;          //闹钟标志位置1
+				//printf("Alarm Time:%d-%d-%d %d:%d:%d\n",calendar.w_year,calendar.w_month,calendar.w_date,calendar.hour,calendar.min,calendar.sec);//输出闹铃时间	
+				
+			} 				
 
 		if(alarmFlag == 1){		//到了响铃时间
 			if(alarmCount == 0){ //打开蜂鸣器
 				RTC_Next_Alarm_Set(calendar.w_year,calendar.w_month,calendar.w_date,calendar.hour,calendar.min,calendar.sec);
 				//设置明天的闹钟
 				alarmCount ++;
-				BEEP_ON;
+				//BEEP_ON;
+				showAlarming();
 			}
 
 			else if (alarmCount >= RING_TIME ){ //说明蜂鸣器已经响了xx秒,应该关闭蜂鸣器,并重置闹钟
 				alarmFlag = 0;
 				alarmCount = 0;
-				BEEP_OFF;
+				//BEEP_OFF;
+				clearAlarming();
 			}
 
 			else{					//没到xx秒,继续响
@@ -105,14 +119,7 @@ void RTC_IRQHandler(void)
 		}
 		   
  	}
-	if(RTC_GetITStatus(RTC_IT_ALR)!= RESET)//闹钟中断
-	{
-		RTC_ClearITPendingBit(RTC_IT_ALR);		//清闹钟中断	  	
-	  	RTC_Get();				//更新时间   
-		alarmFlag = 1;          //闹钟标志位置1
-  		//printf("Alarm Time:%d-%d-%d %d:%d:%d\n",calendar.w_year,calendar.w_month,calendar.w_date,calendar.hour,calendar.min,calendar.sec);//输出闹铃时间	
-		
-  	} 				
+	
 	RTC_ClearITPendingBit(RTC_IT_SEC|RTC_IT_OW);		//清闹钟中断    								 
 	RTC_WaitForLastTask();	  	    						 	   	 
 }
@@ -147,7 +154,7 @@ const u8 mon_table[12]={31,28,31,30,31,30,31,31,30,31,30,31};
 u8 RTC_Set(u16 syear,u8 smon,u8 sday,u8 hour,u8 min,u8 sec)
 {
 	u16 t;
-	u32 seccount=0;
+	u32 seccount=0;  //时钟计时秒数
 	if(syear<1970||syear>2099)return 1;	   
 	for(t=1970;t<syear;t++)	//把所有年份的秒钟相加
 	{
@@ -169,7 +176,37 @@ u8 RTC_Set(u16 syear,u8 smon,u8 sday,u8 hour,u8 min,u8 sec)
 	PWR_BackupAccessCmd(ENABLE);	//使能RTC和后备寄存器访问 
 	RTC_SetCounter(seccount);	//设置RTC计数器的值
 
-	RTC_WaitForLastTask();	//等待最近一次对RTC寄存器的写操作完成  	
+	RTC_WaitForLastTask();	//等待最近一次对RTC寄存器的写操作完成
+
+	//以下是闹钟相关
+	if(seccount >= alarm_seccount){
+		while (seccount >= alarm_seccount){  //如果设置的时间比下次闹钟时间还要前
+			alarm_seccount += 24*60*60;// 闹钟累加1天直到符合要求为止
+		} 
+		//更新闹钟
+		RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE);	//使能PWR和BKP外设时钟   
+		PWR_BackupAccessCmd(ENABLE);	//使能后备寄存器访问  
+		//上面三步是必须的!
+		RTC_SetAlarm(alarm_seccount);
+		RTC_WaitForLastTask();	//等待最近一次对RTC寄存器的写操作完成  	
+		RTC_Alarm_Get(alarm_seccount);
+		showNextAlarm(alarm_calendar.hour, alarm_calendar.min, alarm_calendar.sec);
+	}
+	else if(alarm_seccount - seccount > 24*60*60){//如果时间倒回去了, 闹钟第二天就不会响
+		while(alarm_seccount - seccount > 24*60*60){
+			alarm_seccount -= 24*60*60;
+		}
+		//更新闹钟
+		//这段我没测过, 可能有bug
+		RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE);	//使能PWR和BKP外设时钟   
+		PWR_BackupAccessCmd(ENABLE);	//使能后备寄存器访问  
+		//上面三步是必须的!
+		RTC_SetAlarm(alarm_seccount);
+		RTC_WaitForLastTask();	//等待最近一次对RTC寄存器的写操作完成  	
+		RTC_Alarm_Get(alarm_seccount);
+		showNextAlarm(alarm_calendar.hour, alarm_calendar.min, alarm_calendar.sec);
+	}
+
 	return 0;	    
 }
 
@@ -197,7 +234,8 @@ u8 RTC_Alarm_Set(u16 syear,u8 smon,u8 sday,u8 hour,u8 min,u8 sec)
 	seccount+=(u32)(sday-1)*86400;//把前面日期的秒钟数相加 
 	seccount+=(u32)hour*3600;//小时秒钟数
     seccount+=(u32)min*60;	 //分钟秒钟数
-	seccount+=sec;//最后的秒钟加上去 			    
+	seccount+=sec;//最后的秒钟加上去 			
+    
 	//设置时钟
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE);	//使能PWR和BKP外设时钟   
 	PWR_BackupAccessCmd(ENABLE);	//使能后备寄存器访问  
@@ -207,6 +245,10 @@ u8 RTC_Alarm_Set(u16 syear,u8 smon,u8 sday,u8 hour,u8 min,u8 sec)
  
 	RTC_WaitForLastTask();	//等待最近一次对RTC寄存器的写操作完成  	
 	
+	alarm_seccount = seccount;//把闹钟秒计时赋值给全局变量以供对照
+	RTC_Alarm_Get(seccount);
+	showNextAlarm(alarm_calendar.hour, alarm_calendar.min, alarm_calendar.sec);// 打印出来
+
 	return 0;	    
 }
 
@@ -304,6 +346,7 @@ u8 RTC_Next_Alarm_Set(u16 syear,u8 smon,u8 sday,u8 hour,u8 min,u8 sec)
     seccount+=(u32)min*60;	 //分钟秒钟数
 	seccount+=sec;//最后的秒钟加上去 	
 	seccount+=24*60*60; //添加一天的秒数, 把闹钟设置成明天的同一时刻
+	seccount --;//不知道闹钟为什么多出来一秒, 减掉
 
 	//设置时钟
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE);	//使能PWR和BKP外设时钟   
@@ -313,12 +356,59 @@ u8 RTC_Next_Alarm_Set(u16 syear,u8 smon,u8 sday,u8 hour,u8 min,u8 sec)
 	RTC_SetAlarm(seccount);
  
 	RTC_WaitForLastTask();	//等待最近一次对RTC寄存器的写操作完成  	
+
+	alarm_seccount = seccount;//把闹钟秒计时赋值给全局变量以供对照
+	RTC_Alarm_Get(seccount);
+	showNextAlarm(alarm_calendar.hour, alarm_calendar.min, alarm_calendar.sec);// 打印出来
 	
 	return 0;	    
 }
 
-
-
+void RTC_Alarm_Get(u32 timecount)
+{
+	static u16 daycnt=0;
+	u32 temp=0;
+	u16 temp1=0;	  	 
+ 	temp=timecount/86400;   //得到天数(秒钟数对应的)
+	if(daycnt!=temp)//超过一天了
+	{	  
+		daycnt=temp;
+		temp1=1970;	//从1970年开始
+		while(temp>=365)
+		{				 
+			if(Is_Leap_Year(temp1))//是闰年
+			{
+				if(temp>=366)temp-=366;//闰年的秒钟数
+				else {temp1++;break;}  
+			}
+			else temp-=365;	  //平年 
+			temp1++;  
+		}   
+		alarm_calendar.w_year=temp1;//得到年份
+		temp1=0;
+		while(temp>=28)//超过了一个月
+		{
+			if(Is_Leap_Year(alarm_calendar.w_year)&&temp1==1)//当年是不是闰年/2月份
+			{
+				if(temp>=29)temp-=29;//闰年的秒钟数
+				else break; 
+			}
+			else 
+			{
+				if(temp>=mon_table[temp1])temp-=mon_table[temp1];//平年
+				else break;
+			}
+			temp1++;  
+		}
+		alarm_calendar.w_month=temp1+1;	//得到月份
+		alarm_calendar.w_date=temp+1;  	//得到日期 
+	}
+	temp=timecount%86400;     		//得到秒钟数   	   
+	alarm_calendar.hour=temp/3600;     	//小时
+	alarm_calendar.min=(temp%3600)/60; 	//分钟	
+	alarm_calendar.sec=(temp%3600)%60; 	//秒钟
+	alarm_calendar.week=RTC_Get_Week(alarm_calendar.w_year,alarm_calendar.w_month,alarm_calendar.w_date);//获取星期   
+}	 
 
 
 
