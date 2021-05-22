@@ -12,17 +12,17 @@ void clearTest(void){
 
 void showWeek(void){
     char *str;
-    LCD_ShowString(98,106,240,16,16,"         ");//先重置显示
     switch(calendar.week){
-        case 0: str = "Sunday"; break;
-        case 1: str = "Monday"; break;
-        case 2: str = "Tuesday"; break;
+        case 0: str = "Sunday   "; break;
+        case 1: str = "Monday   "; break;
+        case 2: str = "Tuesday  "; break;
         case 3: str = "Wednesday"; break;
-        case 4: str = "Thursday"; break;
-        case 5: str = "Friday"; break;
-        case 6: str = "Saturday"; break;
+        case 4: str = "Thursday "; break;
+        case 5: str = "Friday   "; break;
+        case 6: str = "Saturday "; break;
     }
-    LCD_ShowString(98,106,240,16,16,str);
+    LCD_ShowString(96,106,240,16,16,str);
+    
 }
 
 void showTime(void){

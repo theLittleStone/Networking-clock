@@ -4,6 +4,7 @@
 #include "rtc.h" 
 #include "beep.h"
 #include "display.h"
+#include "ESP01.h"
 //Mini STM32开发板
 //RTC实时时钟 驱动代码			 
 //正点原子@ALIENTEK
@@ -84,7 +85,10 @@ void RTC_IRQHandler(void)
 
 	if (RTC_GetITStatus(RTC_IT_SEC) != RESET)//秒钟中断
 	{							
+		u8 min = calendar.min;
 		RTC_Get();//更新时间
+		if(min !=calendar.min)
+			Test_Connect();
 		showAll();
 
 		if(RTC_GetITStatus(RTC_IT_ALR)!= RESET)//闹钟中断
@@ -301,6 +305,7 @@ u8 RTC_Get(void)
 	calendar.min=(temp%3600)/60; 	//分钟	
 	calendar.sec=(temp%3600)%60; 	//秒钟
 	calendar.week=RTC_Get_Week(calendar.w_year,calendar.w_month,calendar.w_date);//获取星期   
+	
 	return 0;
 }	 
 //获得现在是星期几

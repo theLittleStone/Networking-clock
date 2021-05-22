@@ -18,5 +18,6 @@ void ESP01_ConnectWiFi(char *name, char *pin);
 void ESP01_Gettime(void);
 void ESP01_Settime(void);
 void ESP01_Getweather(void);
+uint8_t Test_Connect(void);
 
 #endif

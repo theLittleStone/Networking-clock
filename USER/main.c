@@ -35,12 +35,14 @@ int main()
 	key_Init();
 	USART2_Init(); //初始化网络串口
 	LCD_Init();
+	BEEP_Init();
 
 	RTC_Set(2021, 1, 1, 0, 0, 0);
-	RTC_Alarm_Set(2021,1,1,12,26,10);
+	RTC_Alarm_Set(2021,1,1,0,0,10);
 	RTC_Init();
 	showAll();
 
+	//Test_Connect();
 	while (1)
 	{ 
 		

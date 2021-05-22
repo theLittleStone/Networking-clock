@@ -8,6 +8,7 @@
 #include "MP3.h"
 #include "string.h"
 #include "stdio.h"
+#include "display.h"
 
 unsigned char time_data[19];
 extern u16 USART_RX_STA;
@@ -39,13 +40,15 @@ void ESP01_Init(void)
 }
 */
 uint8_t Test_Connect(void){
+	char str[10];
+	memset(USART_RX_BUF2,'\0',sizeof(USART_RX_BUF2));// 清空字符串
 	USART_RX_STA2=0x0000;
 	printf("AT+CWJAP?\r\n");
-	if(strcmp(USART_RX_BUF2,"OK") == 0)
-		return 1;
-	else
-		return 0;
-
+	delay_ms(200);
+	memmove(str, USART_RX_BUF2+10, 9);
+	showTest(str);
+	memset(USART_RX_BUF2,'\0',sizeof(USART_RX_BUF2));// 清空字符串
+	return 0;
 }
 
 void ESP01_ConnectWiFi(char *name, char *pin)//wifi名, 密码
