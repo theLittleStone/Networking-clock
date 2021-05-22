@@ -1,8 +1,10 @@
 
 #include "display.h"
 
+extern _calendar_obj calendar; //声明外部变量
+
 void showTest(char *str){
-    LCD_ShowString(80, 220,240,12,12,str);
+    LCD_ShowString(60, 220,240,12,12,str);
 }
 void clearTest(void){
     LCD_ShowString(80,220,240,12,12,"                             ");
@@ -11,15 +13,16 @@ void clearTest(void){
 void showWeek(void){
     char *str;
     switch(calendar.week){
-        case 0: str = "Sunday"; break;
-        case 1: str = "Monday"; break;
-        case 2: str = "Tuesday"; break;
+        case 0: str = "Sunday   "; break;
+        case 1: str = "Monday   "; break;
+        case 2: str = "Tuesday  "; break;
         case 3: str = "Wednesday"; break;
-        case 4: str = "Thursday"; break;
-        case 5: str = "Friday"; break;
-        case 6: str = "Saturday"; break;
+        case 4: str = "Thursday "; break;
+        case 5: str = "Friday   "; break;
+        case 6: str = "Saturday "; break;
     }
-    LCD_ShowString(98,106,240,16,16,str);
+    LCD_ShowString(96,106,240,16,16,str);
+    
 }
 
 void showTime(void){
@@ -62,4 +65,17 @@ void clearMessage(enum Message mes){
         case FailToGetTime:
         LCD_ShowString(70,180,240,12,12,"                "); break;
     }
+}
+
+void showNextAlarm(uint8_t hour, uint8_t min, uint8_t sec){
+    char str[35];
+    sprintf(str, "Next alarm: %02d : %02d : %02d", hour, min, sec);
+    LCD_ShowString(60,240,240,12,12,str);
+}
+
+void showAlarming(void){
+    LCD_ShowString(80,260,240,12,12,"Alarming");
+}
+void clearAlarming(void){
+    LCD_ShowString(80,260,240,12,12,"        ");
 }

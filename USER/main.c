@@ -13,6 +13,7 @@
 #include "ESP01.h"
 #include "display.h"
 #include "string.h"
+#include "beep.h"
 
 unsigned char  Data[]={0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f};
 unsigned char  DataDp[]={0xbf,0x86,0xdb,0xcf,0xe6,0xed,0xfd,0x87,0xff,0xef};
@@ -30,29 +31,38 @@ int main()
 	
 	uart_init(115200);  //调试串口
 	delay_init();
-	RTC_Init();
 	//TM_Init();
 	key_Init();
 	USART2_Init(); //初始化网络串口
 	LCD_Init();
+	BEEP_Init();
 
-	//RTC_Set(2021, 1, 1, 0, 0, 0);
+	RTC_Set(2021, 1, 1, 0, 0, 0);
+	RTC_Alarm_Set(2021,1,1,0,0,10);
+	RTC_Init();
+	showAll();
+
+	//Test_Connect();
 	while (1)
 	{ 
-		showAll();
+		
 		delay_ms(100);
 		
 		if(KEY1 == 0){                     //按下KEY1复位时钟
 			delay_ms(10);
 			if(KEY1 == 0)
 				RTC_Set(2021, 1, 1, 0, 0, 0);
+			while(KEY1 == 0);
 		}
-		/*while (KEY_UP == 1){
-			showMessage(FailToGetTime);
-			delay_ms(10);	
-		}
-		clearMessage(FailToGetTime);*/
 		
+		if(KEY_UP == 1){
+			delay_ms(10);
+			if(KEY_UP == 1){
+				//showAlarm(NextAlarm);
+				RTC_Set(2021,1,2,0,0,0);
+			}
+			while(KEY_UP == 1);
+		}
 		
 	
 		if(KEY0 == 0)                //按下KEY0进行网络校时
