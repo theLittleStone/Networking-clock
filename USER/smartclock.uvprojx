@@ -491,6 +491,16 @@
               <FileType>1</FileType>
               <FilePath>..\HARDWARE\beep.c</FilePath>
             </File>
+            <File>
+              <FileName>myiic.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\HARDWARE\myiic.c</FilePath>
+            </File>
+            <File>
+              <FileName>SHT2x.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\HARDWARE\SHT2x.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

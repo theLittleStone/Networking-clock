@@ -87,8 +87,11 @@ void RTC_IRQHandler(void)
 	{							
 		u8 min = calendar.min;
 		RTC_Get();//更新时间
-		if(min !=calendar.min)
-			Test_Connect();
+		if(min !=calendar.min) //每经过一分钟
+			Test_Connect();		//测试一次网络连接
+
+		if(calendar.hour==0 && calendar.min==1 && calendar.sec==0)  //每个0点一分联网校对时间
+			getOnlineTime();
 		showAll();
 
 		if(RTC_GetITStatus(RTC_IT_ALR)!= RESET)//闹钟中断

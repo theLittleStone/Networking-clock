@@ -14,6 +14,7 @@
 
 void ESP01_Init(void);
 //void ESP01_Open(void);
+void getOnlineTime(void);
 void ESP01_ConnectWiFi(char *name, char *pin);
 void ESP01_Gettime(void);
 void ESP01_Settime(void);
