@@ -4,15 +4,14 @@
 #include "rtc.h"
 #include "key.h"
 #include "lcd.h"
-
 #include "usart.h"
 //#include "usart3.h"
 #include "usart2.h"
-
 #include "ESP01.h"
 #include "display.h"
 #include "string.h"
 #include "beep.h"
+#include "SHT2x.h"
 
 unsigned char  Data[]={0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f};
 unsigned char  DataDp[]={0xbf,0x86,0xdb,0xcf,0xe6,0xed,0xfd,0x87,0xff,0xef};
@@ -35,7 +34,7 @@ int main()
 	USART2_Init(); //初始化网络串口
 	LCD_Init();
 	BEEP_Init();
-
+	SHT2x_Init(); //初始化
 	RTC_Set(2021, 1, 1, 0, 0, 0);
 	RTC_Alarm_Set(2021,1,1,0,0,10);
 	RTC_Init();
@@ -57,8 +56,8 @@ int main()
 		if(KEY_UP == 1){
 			delay_ms(10);
 			if(KEY_UP == 1){
-				//showAlarm(NextAlarm);
-				RTC_Set(2021,1,2,0,0,0);
+				//showSPrint();
+				showH_T();
 			}
 			while(KEY_UP == 1);
 		}
@@ -78,7 +77,13 @@ int main()
 			delay_ms(10);
 			
 		}
-		
+
+		if(calendar.hour==0 && calendar.min==1 && calendar.sec==0){  //每个0点一分联网校对时间
+			getOnlineTime();                                         //这个函数放在秒中断函数中会一直连接失败
+																	 //初步估计与串口中断的优先级有关. 所以
+																	 //直接放在了主循环里
+		}
+		delay_ms(50);
 		//未开放功能
 		//获得天气
 		/*

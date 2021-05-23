@@ -53,6 +53,7 @@ uint8_t Test_Connect(void){
 
 void getOnlineTime(void){
 	showMessage(GettingTime);
+	memset(USART_RX_BUF2,'\0',sizeof(USART_RX_BUF2));// 清空字符串
 	//Uart_SendCMD(0x12,0,0x0f);  //提醒正在校时
 	ESP01_Gettime();		
 	delay_ms(300);

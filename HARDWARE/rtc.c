@@ -17,6 +17,9 @@ _calendar_obj alarm_calendar;// 闹钟结构体
 uint8_t alarmFlag = 0;//闹钟标志位
 uint8_t alarmCount = 0;//闹钟计时位
 u32 alarm_seccount = 0; //闹钟计时秒数
+extern u16 USART_RX_STA;
+extern u8 USART_RX_BUF2[512];
+
  
 static void RTC_NVIC_Config(void)
 {	
@@ -89,10 +92,9 @@ void RTC_IRQHandler(void)
 		RTC_Get();//更新时间
 		if(min !=calendar.min) //每经过一分钟
 			Test_Connect();		//测试一次网络连接
-
-		if(calendar.hour==0 && calendar.min==1 && calendar.sec==0)  //每个0点一分联网校对时间
-			getOnlineTime();
 		showAll();
+		if(calendar.sec%5 == 0)    //每隔5秒取一次样
+			showH_T();             
 
 		if(RTC_GetITStatus(RTC_IT_ALR)!= RESET)//闹钟中断
 			{
