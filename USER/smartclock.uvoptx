@@ -469,8 +469,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\HARDWARE\myiic.c</PathWithFileName>
-      <FilenameWithoutPath>myiic.c</FilenameWithoutPath>
+      <PathWithFileName>..\HARDWARE\SHT2x.c</PathWithFileName>
+      <FilenameWithoutPath>SHT2x.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -481,8 +481,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\HARDWARE\SHT2x.c</PathWithFileName>
-      <FilenameWithoutPath>SHT2x.c</FilenameWithoutPath>
+      <PathWithFileName>..\HARDWARE\timedit.c</PathWithFileName>
+      <FilenameWithoutPath>timedit.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

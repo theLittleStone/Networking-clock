@@ -19,6 +19,9 @@ typedef struct
 	vu8  week;		 
 }_calendar_obj;					 
 extern _calendar_obj calendar;	//日历结构体
+extern _calendar_obj alarm_calendar;//闹钟结构体
+extern _calendar_obj setting_calendar;
+extern u8 settingFlag;
 
 extern u8 const mon_table[12];	//月份日期数据表
 
@@ -30,7 +33,8 @@ u8 RTC_Next_Alarm_Set(u16 syear,u8 smon,u8 sday,u8 hour,u8 min,u8 sec);//设置�
 u8 RTC_Get(void);         //更新时间   
 u8 RTC_Get_Week(u16 year,u8 month,u8 day);
 u8 RTC_Set(u16 syear,u8 smon,u8 sday,u8 hour,u8 min,u8 sec);//设置时间		
-void RTC_Alarm_Get(u32 timecount);	 
+void RTC_Alarm_Get(u32 timecount);	
+u8 getMaxDayInMonth(u16 year, u8 month); //判断一个月有多少天 
 #endif
 
 

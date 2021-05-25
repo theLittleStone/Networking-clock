@@ -7,6 +7,7 @@
 #include "stdlib.h"
 #include "string.h"
 #include "SHT2x.h"
+#include "timedit.h"
 
 extern _calendar_obj calendar; //声明外部变量
 
@@ -27,9 +28,9 @@ void clearTest(void){
     LCD_ShowString(80,220,240,12,12,"                             ");
 }
 
-void showWeek(void){
+void showWeek(_calendar_obj cal){
     char *str;
-    switch(calendar.week){
+    switch(cal.week){
         case 0: str = "Sunday   "; break;
         case 1: str = "Monday   "; break;
         case 2: str = "Tuesday  "; break;
@@ -38,25 +39,43 @@ void showWeek(void){
         case 5: str = "Friday   "; break;
         case 6: str = "Saturday "; break;
     }
-    LCD_ShowString(96,106,240,16,16,str);
-    
+    LCD_ShowString(96,116,240,16,16,str);
 }
 
-void showTime(void){
+void clearWeek(void){
+    LCD_ShowString(96,116,240,16,16,"         ");
+}
+
+void showTime(_calendar_obj cal){
     char str[20];
-    sprintf(str, "%02d : %02d : %02d", calendar.hour, calendar.min, calendar.sec);
+    sprintf(str, "%02d : %02d : %02d", cal.hour, cal.min, cal.sec);
     LCD_ShowString(48,50,240,24,24,str);
 }
-void showDate(void){
+
+void clearTime(void){
+    LCD_ShowString(48,50,240,24,24,"                  ");
+}
+
+void showDate(_calendar_obj cal){
     char str[20];
-    sprintf(str, "%04d.%02d.%02d", (int)calendar.w_year, (int)calendar.w_month, (int)calendar.w_date);
+    sprintf(str, "%04d.%02d.%02d", (int)cal.w_year, (int)cal.w_month, (int)cal.w_date);
     LCD_ShowString(81,86,240,16,16,str);
 }
 
-void showAll(void){ 
-    showTime();
-    showDate();
-    showWeek();
+void clearDate(void){
+    LCD_ShowString(81,86,240,16,16,"              ");
+}
+
+void showAll(_calendar_obj cal){ 
+    showTime(cal);
+    showDate(cal);
+    showWeek(cal);
+}
+
+void clearAll(void){
+    clearTime();
+    clearDate();
+    clearWeek();
 }
 
 //显示特定的信息, 想要清除用clearMessage函数, 不要直接覆盖
@@ -76,11 +95,11 @@ void showMessage(enum Message mes){
 void clearMessage(enum Message mes){
     switch(mes){
         case GettingTime:
-        LCD_ShowString(38,180,240,12,12,"                           "); break;
+        LCD_ShowString(38,190,240,12,12,"                           "); break;
         case GetTimeSuccessfully:
-        LCD_ShowString(56,180,240,12,12,"                     "); break;
+        LCD_ShowString(56,190,240,12,12,"                     "); break;
         case FailToGetTime:
-        LCD_ShowString(70,180,240,12,12,"                "); break;
+        LCD_ShowString(70,190,240,12,12,"                "); break;
     }
 }
 
@@ -88,6 +107,10 @@ void showNextAlarm(uint8_t hour, uint8_t min, uint8_t sec){
     char str[35];
     sprintf(str, "Next alarm: %02d : %02d : %02d", hour, min, sec);
     LCD_ShowString(60,240,240,12,12,str);
+}
+
+void clearNextAlarm(void){
+    LCD_ShowString(60,240,240,12,12,"                              ");
 }
 
 void showAlarming(void){
@@ -109,6 +132,65 @@ void showH_T(void){
     tmp = (int)humi;
     humi = 100*(humi-tmp);
     sprintf(str2, "Humi: %02d.%02d%%", tmp, (int)humi);
-    LCD_ShowString(78,130,240,16,16,str1);
-    LCD_ShowString(78,150,240,16,16,str2);
+    LCD_ShowString(78,140,240,16,16,str1);
+    LCD_ShowString(78,160,240,16,16,str2);
+}
+
+//显示闹钟校时时的标志
+void showAlarmEditStatus(enum settingPart part){
+    switch(part){
+        case HOUR:
+            LCD_ShowChar(135,252,'*',12,0);
+            LCD_ShowChar(195,252,' ',12,0);
+            break;
+        case MINUTE:
+            LCD_ShowChar(165,252,'*',12,0);
+            LCD_ShowChar(135,252,' ',12,0);
+            break;
+        case SECOND:
+            LCD_ShowChar(195,252,'*',12,0);
+            LCD_ShowChar(165,252,' ',12,0);
+            break;
+    }
+}
+
+void clearAlarmEditStatus(void){
+    LCD_ShowChar(135,252,' ',12,0);
+    LCD_ShowChar(165,252,' ',12,0);
+    LCD_ShowChar(195,252,' ',12,0);
+}
+
+void showClockEditStatus(enum settingPart part){
+    switch(part){
+        case HOUR:
+            LCD_ShowChar(195,252,' ',12,0);
+            LCD_ShowChar(57,72,'*',16,0);
+            break;
+        case MINUTE:
+            LCD_ShowChar(57,72,' ',16,0);
+            LCD_ShowChar(117,72,'*',16,0);
+            break;
+        case SECOND:
+            LCD_ShowChar(117,72,' ',16,0);
+            LCD_ShowChar(177,72,'*',16,0);
+            break;
+        case YEAR:
+            LCD_ShowChar(177,72,' ',16,0);
+            LCD_ShowChar(93,100,'*',12,0);
+            break;
+        case MONTH:
+            LCD_ShowChar(93,100,' ',12,0);
+            LCD_ShowChar(125,100,'*',12,0);
+            break;
+        case DAY:
+            LCD_ShowChar(125,100,' ',12,0);
+            LCD_ShowChar(150,100,'*',12,0);
+            break;
+    }
+
+}
+void clearClockEditStatus(void){
+    LCD_ShowChar(93,100,' ',12,0);
+    LCD_ShowChar(125,100,' ',12,0);
+    LCD_ShowChar(150,100,' ',12,0);
 }
