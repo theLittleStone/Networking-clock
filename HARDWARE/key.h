@@ -18,6 +18,11 @@
 #define KEY_UP_PORT GPIOA
 #define KEY_UP_PIN  GPIO_Pin_0
 
+#define KEY0_PRES 	1	//KEY0按下
+#define KEY1_PRES	2	//KEY1按下
+#define KEY2_PRES	3	//KEY2按下
+#define WKUP_PRES   4	//KEY_UP按下(即WK_UP/KEY_UP)
+
 #define KEY0  GPIO_ReadInputDataBit(GPIOE,GPIO_Pin_4)//读取按键0, 0为按下
 #define KEY1  GPIO_ReadInputDataBit(GPIOE,GPIO_Pin_3)//读取按键1, 0为按下
 #define KEY2  GPIO_ReadInputDataBit(GPIOE,GPIO_Pin_2)//读取按键2, 我的板子上没有这个按键

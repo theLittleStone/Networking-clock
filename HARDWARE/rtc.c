@@ -19,7 +19,8 @@ uint8_t alarmCount = 0;//闹钟计时位
 u32 alarm_seccount = 0; //闹钟计时秒数
 extern u16 USART_RX_STA;
 extern u8 USART_RX_BUF2[512];
-
+u8 settingFlag = 0; //校时标志位, 为1时不再更新时间
+extern u8 alarmIsOpen;
  
 static void RTC_NVIC_Config(void)
 {	
@@ -89,14 +90,14 @@ void RTC_IRQHandler(void)
 	if (RTC_GetITStatus(RTC_IT_SEC) != RESET)//秒钟中断
 	{							
 		u8 min = calendar.min;
+		
 		RTC_Get();//更新时间
-		if(min !=calendar.min) //每经过一分钟
-			Test_Connect();		//测试一次网络连接
-		showAll();
+		if(!settingFlag)
+			showAll(calendar);
 		if(calendar.sec%5 == 0)    //每隔5秒取一次样
 			showH_T();             
 
-		if(RTC_GetITStatus(RTC_IT_ALR)!= RESET)//闹钟中断
+		if(RTC_GetITStatus(RTC_IT_ALR)!=RESET)//闹钟中断
 			{
 				RTC_ClearITPendingBit(RTC_IT_ALR);		//清闹钟中断	  	
 				RTC_Get();				//更新时间   
@@ -110,8 +111,10 @@ void RTC_IRQHandler(void)
 				RTC_Next_Alarm_Set(calendar.w_year,calendar.w_month,calendar.w_date,calendar.hour,calendar.min,calendar.sec);
 				//设置明天的闹钟
 				alarmCount ++;
-				//BEEP_ON;
-				showAlarming();
+				if(alarmIsOpen){
+					//BEEP_ON;
+					showAlarming();
+				}
 			}
 
 			else if (alarmCount >= RING_TIME ){ //说明蜂鸣器已经响了xx秒,应该关闭蜂鸣器,并重置闹钟
@@ -228,6 +231,7 @@ u8 RTC_Alarm_Set(u16 syear,u8 smon,u8 sday,u8 hour,u8 min,u8 sec)
 {
 	u16 t;
 	u32 seccount=0;
+	u32 timecount = 0;
 	if(syear<1970||syear>2099)return 1;	   
 	for(t=1970;t<syear;t++)	//把所有年份的秒钟相加
 	{
@@ -245,6 +249,14 @@ u8 RTC_Alarm_Set(u16 syear,u8 smon,u8 sday,u8 hour,u8 min,u8 sec)
     seccount+=(u32)min*60;	 //分钟秒钟数
 	seccount+=sec;//最后的秒钟加上去 			
     
+	timecount = RTC_GetCounter();
+	while(seccount<timecount){			//闹钟比实际时间还前, 需要对其进行修正
+		seccount += 24*60*60;
+	}
+	while(seccount-timecount > 24*60*60){//闹钟与实际超过大于一天
+		seccount -= 24*60*60;
+	}
+
 	//设置时钟
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE);	//使能PWR和BKP外设时钟   
 	PWR_BackupAccessCmd(ENABLE);	//使能后备寄存器访问  
@@ -420,7 +432,12 @@ void RTC_Alarm_Get(u32 timecount)
 	alarm_calendar.week=RTC_Get_Week(alarm_calendar.w_year,alarm_calendar.w_month,alarm_calendar.w_date);//获取星期   
 }	 
 
-
+u8 getMaxDayInMonth(u16 year, u8 month){     //显示一个月有多少天
+	u8 table[12] = {31,28,31,30,31,30,31,31,30,31,30,31};
+	if( month==2 && Is_Leap_Year(year))
+		return 29;
+	return table[year-1];
+}
 
 
 
