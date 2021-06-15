@@ -27,6 +27,8 @@ enum settingPart part;
 extern _calendar_obj calendar;
 extern _calendar_obj setting_calendar;
 extern unsigned char rec_dat[];
+extern uint8_t alarmCount;//闹钟计时位
+extern uint8_t alarmFlag;//闹钟标志位
 u8 alarmIsOpen = 1; //闹钟开关标志位, 1为开
 
 int main()
@@ -41,7 +43,7 @@ int main()
 	BEEP_Init();
 	SHT2x_Init(); //初始化
 	RTC_Set(2021, 1, 1, 0, 0, 0);
-	RTC_Alarm_Set(2021,1,1,0,0,10);
+	RTC_Alarm_Set(2021,1,1,0,0,5);
 	RTC_Init();
 	showH_T();
 	showAll(calendar);
@@ -62,9 +64,15 @@ int main()
 		
 		if(KEY1 == 0){                     //按下KEY1开关闹钟功能
 			delay_ms(10);
-			if(KEY1 == 0)
-				alarmIsOpen = !alarmIsOpen;
+			if(KEY1 == 0){
+				if(alarmFlag){                 //如果闹钟已经在响, 就停止这次闹钟
+					alarmFlag = 0;
+					alarmCount = 0;
+				}
+				else
+					alarmIsOpen = !alarmIsOpen;}
 			while(KEY1 == 0);
+			
 			if(alarmIsOpen)					//立即更改提示
 				showTest("Alarm function: Open ");
 			else

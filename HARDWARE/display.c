@@ -95,11 +95,11 @@ void showMessage(enum Message mes){
 void clearMessage(enum Message mes){
     switch(mes){
         case GettingTime:
-        LCD_ShowString(38,190,240,12,12,"                           "); break;
+        LCD_ShowString(38,180,240,12,12,"                           "); break;
         case GetTimeSuccessfully:
-        LCD_ShowString(56,190,240,12,12,"                     "); break;
+        LCD_ShowString(56,180,240,12,12,"                     "); break;
         case FailToGetTime:
-        LCD_ShowString(70,190,240,12,12,"                "); break;
+        LCD_ShowString(70,180,240,12,12,"                "); break;
     }
 }
 
