@@ -10,7 +10,6 @@
 //正点原子@ALIENTEK
 //2010/6/6
 
-#define RING_TIME 10 //闹钟响铃时间, 单位为秒
 	   
 _calendar_obj calendar;//时钟结构体 
 _calendar_obj alarm_calendar;// 闹钟结构体
@@ -112,7 +111,7 @@ void RTC_IRQHandler(void)
 				//设置明天的闹钟
 				alarmCount ++;
 				if(alarmIsOpen){
-					//BEEP_ON;
+					BEEP_ON;
 					showAlarming();
 				}
 			}
@@ -120,7 +119,7 @@ void RTC_IRQHandler(void)
 			else if (alarmCount >= RING_TIME ){ //说明蜂鸣器已经响了xx秒,应该关闭蜂鸣器,并重置闹钟
 				alarmFlag = 0;
 				alarmCount = 0;
-				//BEEP_OFF;
+				BEEP_OFF;
 				clearAlarming();
 			}
 
@@ -128,6 +127,12 @@ void RTC_IRQHandler(void)
 				alarmCount ++;
 			}
 			
+		}
+		else{
+			alarmFlag = 0;
+			alarmCount = 0;
+			BEEP_OFF;
+			clearAlarming();
 		}
 		   
  	}

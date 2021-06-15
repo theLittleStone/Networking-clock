@@ -18,6 +18,9 @@ typedef struct
 	vu8  w_date;
 	vu8  week;		 
 }_calendar_obj;					 
+
+#define RING_TIME 10 //闹钟响铃时间, 单位为秒
+
 extern _calendar_obj calendar;	//日历结构体
 extern _calendar_obj alarm_calendar;//闹钟结构体
 extern _calendar_obj setting_calendar;
